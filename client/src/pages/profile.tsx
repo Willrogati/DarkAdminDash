@@ -40,7 +40,7 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function Profile() {
-  const { user, loading } = useAuth();
+  const { user, userData: firestoreUser, loading, updateUserProfile } = useAuth();
   const [, setLocation] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();

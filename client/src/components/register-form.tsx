@@ -53,9 +53,8 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
   const onSubmit = async (data: RegisterFormValues) => {
     try {
       setIsLoading(true);
-      await signUp(data.email, data.password);
-      // We would typically update the user profile with the name here
-      // but for simplicity in this example, we're just handling the basic signup
+      // Agora passamos o nome do usuário ao registrar
+      await signUp(data.email, data.password, data.name);
     } catch (error) {
       console.error("Register error:", error);
     } finally {
