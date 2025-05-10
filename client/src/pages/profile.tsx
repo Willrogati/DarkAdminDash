@@ -123,7 +123,22 @@ export default function Profile() {
   }, [userData, user, reset]);
 
   const onSubmit = async (data: ProfileFormValues) => {
-    updateProfileMutation.mutate(data);
+    if (!user) return;
+
+    try {
+      // Primeiro, atualizamos o perfil do usuário no Firebase e Firestore
+      const success = await updateUserProfile({
+        name: data.name,
+        imageUrl: data.imageUrl || null
+      });
+
+      if (success) {
+        // Se necessário, atualizamos os dados no backend também
+        updateProfileMutation.mutate(data);
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
   if (loading || !user) {
