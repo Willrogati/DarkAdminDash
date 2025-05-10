@@ -8,6 +8,9 @@ import { AuthProvider } from "@/hooks/use-auth";
 import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import Profile from "@/pages/profile";
+import YouTubeSearch from "@/pages/youtube-search";
+import YouTubeVideo from "@/pages/youtube-video";
+import YouTubeChannel from "@/pages/youtube-channel";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +19,9 @@ function Router() {
       <Route path="/" component={Login} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/profile" component={Profile} />
+      <Route path="/youtube/search" component={YouTubeSearch} />
+      <Route path="/youtube/videos/:videoId" component={YouTubeVideo} />
+      <Route path="/youtube/channels/:channelId" component={YouTubeChannel} />
       <Route component={NotFound} />
     </Switch>
   );

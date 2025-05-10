@@ -88,22 +88,33 @@ export class YouTubeService {
       }
 
       return response.data.items.map(item => {
-        const itemType = 
-          item.id?.videoId ? 'video' : 
-          item.id?.channelId ? 'channel' : 
-          'unknown';
+        // Determinando o tipo do item (vídeo ou canal)
+        let itemType: 'video' | 'channel';
+        let itemId: string;
+        
+        if (item.id?.videoId) {
+          itemType = 'video';
+          itemId = item.id.videoId;
+        } else if (item.id?.channelId) {
+          itemType = 'channel';
+          itemId = item.id.channelId;
+        } else {
+          // Pulamos itens que não são vídeos ou canais
+          return null;
+        }
           
         return {
-          id: item.id?.videoId || item.id?.channelId || '',
-          type: itemType as 'video' | 'channel',
+          id: itemId,
+          type: itemType,
           title: item.snippet?.title || '',
           description: item.snippet?.description || '',
           thumbnailUrl: item.snippet?.thumbnails?.medium?.url || item.snippet?.thumbnails?.default?.url || '',
           publishedAt: item.snippet?.publishedAt || undefined,
-          channelId: item.snippet?.channelId,
-          channelTitle: item.snippet?.channelTitle
+          channelId: item.snippet?.channelId || undefined,
+          channelTitle: item.snippet?.channelTitle || undefined
         };
-      }).filter(item => item.type !== 'unknown' && item.id);
+      })
+      .filter((item): item is YouTubeSearchResult => item !== null);
     } catch (error) {
       console.error('Erro ao pesquisar no YouTube:', error);
       throw new Error('Falha ao pesquisar no YouTube. Verifique sua chave de API e tente novamente.');

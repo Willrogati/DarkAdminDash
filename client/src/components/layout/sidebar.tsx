@@ -9,7 +9,9 @@ import {
   BarChart, 
   FileText, 
   Bell, 
-  LogOut 
+  LogOut,
+  Youtube,
+  Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
