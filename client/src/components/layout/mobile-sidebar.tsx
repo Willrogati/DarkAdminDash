@@ -16,7 +16,9 @@ import {
   BarChart, 
   FileText, 
   Bell, 
-  LogOut 
+  LogOut,
+  Youtube,
+  Search
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -43,6 +45,7 @@ export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   // Lista de navegação principal
   const mainNavItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
+    { icon: Youtube, label: "YouTube", path: "/youtube/search" },
     { icon: BarChart, label: "Estatísticas", path: "/statistics" },
     { icon: Users, label: "Usuários", path: "/users" },
   ];

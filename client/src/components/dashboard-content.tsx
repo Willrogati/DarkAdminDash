@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { Link } from "wouter";
 import { 
   Card, 
   CardContent, 
@@ -14,7 +15,9 @@ import {
   BarChart3, 
   TrendingUp, 
   Clock, 
-  AlertCircle 
+  AlertCircle,
+  Youtube,
+  Search
 } from "lucide-react";
 
 export function DashboardContent() {
@@ -110,6 +113,29 @@ export function DashboardContent() {
           </Card>
         ))}
       </div>
+
+      {/* YouTube Card */}
+      <Card className="border-border bg-gradient-to-br from-red-900/20 to-red-950/10">
+        <CardContent className="flex flex-col md:flex-row items-center p-6 gap-6">
+          <div className="w-20 h-20 flex items-center justify-center rounded-full bg-red-500/20 mb-4 md:mb-0">
+            <Youtube className="h-10 w-10 text-red-500" />
+          </div>
+          <div className="text-center md:text-left md:flex-1">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Análise de Vídeos do YouTube
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Pesquise e analise vídeos e canais do YouTube para obter insights valiosos.
+            </p>
+            <Link href="/youtube/search">
+              <Button>
+                <Search className="h-4 w-4 mr-2" />
+                Pesquisar Vídeos
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Two Column Section */}
       <div className="grid gap-6 md:grid-cols-2">

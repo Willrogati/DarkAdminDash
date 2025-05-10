@@ -37,6 +37,7 @@ export function Sidebar({ className }: SidebarProps) {
   // Lista de navegação principal
   const mainNavItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
+    { icon: Youtube, label: "YouTube", path: "/youtube/search" },
     { icon: BarChart, label: "Estatísticas", path: "/statistics" },
     { icon: Users, label: "Usuários", path: "/users" },
   ];
