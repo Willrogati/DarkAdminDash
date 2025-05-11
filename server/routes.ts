@@ -10,6 +10,10 @@ import {
   youtubeChannelDetailsSchema, 
   youtubeChannelVideosSchema 
 } from "./youtube-service";
+import {
+  getZyteService,
+  transcriptionRequestSchema
+} from "./zyte-service";
 
 // Middleware para verificar token de autenticação
 const authMiddleware = (req: Request, res: Response, next: Function) => {
@@ -340,6 +344,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting favorite channel:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  // Obter transcrição de um vídeo via Zyte API
+  app.get("/api/youtube/videos/:videoId/transcription", async (req, res) => {
+    try {
+      const result = transcriptionRequestSchema.safeParse({
+        videoId: req.params.videoId
+      });
+      
+      if (!result.success) {
+        return res.status(400).json({ 
+          message: "Invalid video ID", 
+          errors: result.error.format() 
+        });
+      }
+      
+      try {
+        const zyteService = getZyteService();
+        const transcription = await zyteService.getVideoTranscription(result.data.videoId);
+        
+        res.json({ 
+          videoId: result.data.videoId,
+          transcription,
+          segmentsCount: transcription.length
+        });
+      } catch (error: any) {
+        return res.status(404).json({ message: error.message || "Não foi possível obter a transcrição do vídeo" });
+      }
+    } catch (error) {
+      console.error("Error fetching video transcription:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   });

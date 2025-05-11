@@ -14,6 +14,12 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { 
   Youtube, 
   ArrowLeft, 
@@ -22,7 +28,9 @@ import {
   User2,
   BookmarkPlus,
   Calendar,
-  ExternalLink
+  ExternalLink,
+  FileText,
+  Loader2
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useQuery } from "@tanstack/react-query";
@@ -41,11 +49,25 @@ type YouTubeVideoDetails = {
   likeCount?: number;
 };
 
+// Tipo para segmento de transcrição
+type TranscriptionSegment = {
+  text: string;
+  time?: string;
+};
+
+// Tipo para resposta de transcrição
+type TranscriptionResponse = {
+  videoId: string;
+  transcription: TranscriptionSegment[];
+  segmentsCount: number;
+};
+
 export default function YouTubeVideo() {
   const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
   const { videoId } = useParams();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showTranscription, setShowTranscription] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -66,6 +88,21 @@ export default function YouTubeVideo() {
       return await apiRequest<YouTubeVideoDetails>(`/api/youtube/videos/${videoId}`);
     },
     enabled: !!videoId // Executar apenas se tivermos o ID do vídeo
+  });
+  
+  // Consulta de transcrição do vídeo
+  const {
+    data: transcriptionData,
+    isLoading: isLoadingTranscription,
+    refetch: fetchTranscription,
+    error: transcriptionError
+  } = useQuery({
+    queryKey: ["youtube-transcription", videoId],
+    queryFn: async () => {
+      if (!videoId) return null;
+      return await apiRequest<TranscriptionResponse>(`/api/youtube/videos/${videoId}/transcription`);
+    },
+    enabled: false // Não executar automaticamente, apenas quando solicitado
   });
 
   const formatDate = (dateString: string) => {
@@ -119,6 +156,26 @@ export default function YouTubeVideo() {
       toast({
         title: "Erro",
         description: "Não foi possível salvar o vídeo.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const handleGetTranscription = async () => {
+    try {
+      setShowTranscription(true);
+      
+      toast({
+        title: "Obtendo transcrição",
+        description: "Isso pode levar alguns segundos...",
+      });
+      
+      await fetchTranscription();
+    } catch (error) {
+      console.error("Erro ao obter transcrição:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível obter a transcrição do vídeo.",
         variant: "destructive",
       });
     }
