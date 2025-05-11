@@ -85,7 +85,7 @@ export default function YouTubeVideo() {
     queryKey: ["youtube-video", videoId],
     queryFn: async () => {
       if (!videoId) return null;
-      return await apiRequest<YouTubeVideoDetails>(`/api/youtube/videos/${videoId}`);
+      return await apiRequest(`/api/youtube/videos/${videoId}`);
     },
     enabled: !!videoId // Executar apenas se tivermos o ID do vídeo
   });
@@ -100,7 +100,7 @@ export default function YouTubeVideo() {
     queryKey: ["youtube-transcription", videoId],
     queryFn: async () => {
       if (!videoId) return null;
-      return await apiRequest<TranscriptionResponse>(`/api/youtube/videos/${videoId}/transcription`);
+      return await apiRequest(`/api/youtube/videos/${videoId}/transcription`);
     },
     enabled: false // Não executar automaticamente, apenas quando solicitado
   });
@@ -275,14 +275,39 @@ export default function YouTubeVideo() {
                           </div>
                         </div>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank')}
-                      >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Abrir no YouTube
-                      </Button>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={handleGetTranscription}
+                          disabled={isLoadingTranscription || !!transcriptionData}
+                        >
+                          {isLoadingTranscription ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Obtendo...
+                            </>
+                          ) : transcriptionData ? (
+                            <>
+                              <FileText className="h-4 w-4 mr-2" />
+                              Transcrição Obtida
+                            </>
+                          ) : (
+                            <>
+                              <FileText className="h-4 w-4 mr-2" />
+                              Obter Transcrição
+                            </>
+                          )}
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank')}
+                        >
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Abrir no YouTube
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="py-4">
@@ -296,6 +321,65 @@ export default function YouTubeVideo() {
                         <p className="text-sm text-muted-foreground">Clique para ver o canal</p>
                       </div>
                     </div>
+                    
+                    {/* Transcrição do vídeo */}
+                    {(showTranscription || transcriptionData) && (
+                      <div className="mb-6">
+                        <Accordion type="single" collapsible defaultValue="transcription">
+                          <AccordionItem value="transcription">
+                            <AccordionTrigger className="text-base font-semibold">
+                              Transcrição do Vídeo
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              {isLoadingTranscription ? (
+                                <div className="flex flex-col items-center justify-center py-6">
+                                  <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+                                  <p className="text-sm text-muted-foreground">
+                                    Obtendo transcrição do vídeo...
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    Isso pode levar até 60 segundos.
+                                  </p>
+                                </div>
+                              ) : transcriptionError ? (
+                                <div className="flex flex-col items-center justify-center py-6">
+                                  <p className="text-sm text-red-500">
+                                    {(transcriptionError as Error).message || "Erro ao obter transcrição do vídeo."}
+                                  </p>
+                                  <Button 
+                                    variant="outline"
+                                    size="sm"
+                                    className="mt-4"
+                                    onClick={handleGetTranscription}
+                                  >
+                                    Tentar Novamente
+                                  </Button>
+                                </div>
+                              ) : transcriptionData?.transcription && transcriptionData.transcription.length > 0 ? (
+                                <div className="max-h-[400px] overflow-y-auto p-1">
+                                  {transcriptionData.transcription.map((segment: TranscriptionSegment, index: number) => (
+                                    <div key={index} className="mb-3 border-b border-border pb-2 last:border-0">
+                                      {segment.time && (
+                                        <span className="text-xs font-medium text-primary">
+                                          {segment.time}
+                                        </span>
+                                      )}
+                                      <p className="text-sm text-foreground">
+                                        {segment.text}
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : transcriptionData?.transcription && transcriptionData.transcription.length === 0 ? (
+                                <p className="text-sm text-muted-foreground py-4">
+                                  Nenhuma transcrição disponível para este vídeo.
+                                </p>
+                              ) : null}
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </div>
+                    )}
                     
                     <h3 className="font-semibold mb-2">Descrição</h3>
                     <p className="text-sm text-muted-foreground whitespace-pre-line">
